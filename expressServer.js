@@ -60,6 +60,18 @@ app.use(bodyParser.json());
 //     res.send(note);
 // });
 
+// app.delete('/notes/:id', function (req, res) {
+//     var id = Number.parseInt(req.params.id);
+
+//     if (Number.isNaN(id) || id < 0 || id >= notes.length) {
+//         return res.sendStatus(404);
+//     }
+
+//     var note = notes.splice(id, 1)[0];
+
+//     res.send(note);
+// });
+
 // 
 // 
 app.get('/notes', function (req, res) {
@@ -93,9 +105,6 @@ app.get('/notes/:id', function (req, res) {
         res.send(notes.userNotes[id])
     })
 });
-
-// 
-// 
 
 app.post('/notes', function (req, res) {
     fs.readFile(notesPath, 'utf8', function(readErr, notesJSON){
@@ -171,15 +180,32 @@ app.put('/notes/:id', function (req, res) {
 });
 
 app.delete('/notes/:id', function (req, res) {
-    var id = Number.parseInt(req.params.id);
+    fs.readFile(notesPath, 'utf8', function(readErr, notesJSON){
+        if(readErr){
+            console.error(readErr.stack)
+            return res.sendStatus(500)
+        }
 
-    if (Number.isNaN(id) || id < 0 || id >= notes.length) {
-        return res.sendStatus(404);
-    }
+        var id = Number.parseInt(req.params.id)
+        var notes = JSON.parse(notesJSON)
 
-    var note = notes.splice(id, 1)[0];
+        if (id < 0 || Number.isNaN(id) || id >= notes.length) {
+            return res.sendStatus(404)
+        }
 
-    res.send(note);
+        notes.userNotes.splice(id, 1)
+        var newNotesJSON = JSON.stringify(notes)
+
+        fs.writeFile(notesPath, newNotesJSON, function(writeErr){
+            if(writeErr){
+                console.error(writeErr.stack)
+                return res.sendStatus(500)
+            }
+        })
+
+        res.set('Content-Type', 'text/plain')
+        res.send(notes)
+    })
 });
 
 app.listen(app.get('port'), function () {
