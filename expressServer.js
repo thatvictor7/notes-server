@@ -16,64 +16,6 @@ app.use(morgan('short'));
 var bodyParser = require('body-parser');
 app.use(bodyParser.json());
 
-// app.get('/notes', function(req,res) {
-//     res.send(notes)
-// })
-
-// app.get('/notes/:id', function (req, res) {
-//     var id = Number.parseInt(req.params.id);
-
-//     if (Number.isNaN(id) || id < 0 || id >= notes.length) {
-//         return res.sendStatus(404);
-//     }
-
-//     res.send(notes[id]);
-// })
-
-// app.post('/notes', function (req, res) {
-//     var note = req.body;
-
-//     if (!note) {
-//         return res.sendStatus(400);
-//     }
-
-//     notes.push(note);
-
-//     res.send(note);
-// });
-
-// app.put('/notes/:id', function (req, res) {
-//     var id = Number.parseInt(req.params.id);
-
-//     if (Number.isNaN(id) || id < 0 || id >= notes.length) {
-//         return res.sendStatus(404);
-//     }
-
-//     var note = req.body;
-
-//     if (!note) {
-//         return res.sendStatus(400);
-//     }
-
-//     notes[id] = note;
-
-//     res.send(note);
-// });
-
-// app.delete('/notes/:id', function (req, res) {
-//     var id = Number.parseInt(req.params.id);
-
-//     if (Number.isNaN(id) || id < 0 || id >= notes.length) {
-//         return res.sendStatus(404);
-//     }
-
-//     var note = notes.splice(id, 1)[0];
-
-//     res.send(note);
-// });
-
-// 
-// 
 app.get('/notes', function (req, res) {
     fs.readFile(notesPath, 'utf8', function(err, notesJSON){
         if(err){
@@ -83,7 +25,7 @@ app.get('/notes', function (req, res) {
 
         var notes = JSON.parse(notesJSON)
 
-        res.send(notes)
+        res.status(200).json(notes)
     })
 });
 
@@ -102,7 +44,7 @@ app.get('/notes/:id', function (req, res) {
         }
 
         res.set('Content-Type', 'text/plain')
-        res.send(notes.userNotes[id])
+        res.status(200).json(notes.userNotes[id])
     })
 });
 
@@ -120,7 +62,7 @@ app.post('/notes', function (req, res) {
             [noteName]: noteBody
         }
 
-        if (!noteName || !noteBody){
+        if (!noteName && !noteBody){
             console.log('400!!!');
             return res.sendStatus(400)
         }
@@ -137,7 +79,7 @@ app.post('/notes', function (req, res) {
         })
 
         res.set('Content-Type', 'text/plain')
-        res.send(notes)
+        res.status(201).json({ [noteName]: noteBody })
     })
 });
 
@@ -159,7 +101,6 @@ app.put('/notes/:id', function (req, res) {
         }
 
         if (!noteName || !noteBody) {
-            console.log('400!!!');
             return res.sendStatus(400)
         }
 
@@ -175,7 +116,7 @@ app.put('/notes/:id', function (req, res) {
         })
 
         res.set('Content-Type', 'text/plain')
-        res.send(notes.userNotes[id])
+        res.status(200).json(notes.userNotes[id])
     })
 });
 
@@ -204,7 +145,7 @@ app.delete('/notes/:id', function (req, res) {
         })
 
         res.set('Content-Type', 'text/plain')
-        res.send(notes)
+        res.status(200).json({'Deleted Content id:': id})
     })
 });
 
